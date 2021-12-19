@@ -12,6 +12,10 @@ import android.widget.Button
 
 class MainActivity : AppCompatActivity() {
 
+    private val soundVisualizerView: SoundVisualizerView by lazy {
+        findViewById(R.id.soundVisualizerView)
+    }
+
     private val resetButton: Button by lazy {
         findViewById(R.id.resetButton)
     }
@@ -32,13 +36,12 @@ class MainActivity : AppCompatActivity() {
     private var recorder: MediaRecorder? = null
     private var player: MediaPlayer? = null
     private var state = State.BEFORE_RECORDING
-
-    set(value) {
-        field = value
-        resetButton.isEnabled = (value == State.AFTER_RECORDING) ||
-                (value == State.ON_PLAYING)
-        recordButton.updateIconWithState(value)
-    }
+        set(value) {
+            field = value
+            resetButton.isEnabled = (value == State.AFTER_RECORDING) ||
+                    (value == State.ON_PLAYING)
+            recordButton.updateIconWithState(value)
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,9 +62,9 @@ class MainActivity : AppCompatActivity() {
 
         val audioRecordPermissionGranted =
             requestCode == REQUEST_RECORD_AUDIO_PERMISSION &&
-                grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED
+                    grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED
 
-        if(!audioRecordPermissionGranted) {
+        if (!audioRecordPermissionGranted) {
             finish() // 거절 시 앱종료
         }
 
@@ -76,13 +79,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun bindViews() {
+        soundVisualizerView.onRequestCurrentAmplitude = {
+            recorder?.maxAmplitude ?: 0
+        }
         resetButton.setOnClickListener {
             stopPlaying()
             state = State.BEFORE_RECORDING
         }
 
         recordButton.setOnClickListener {
-            when(state) {
+            when (state) {
                 State.BEFORE_RECORDING -> {
                     startRecording()
                 }
@@ -115,15 +121,17 @@ class MainActivity : AppCompatActivity() {
             prepare()
         }
         recorder?.start()
+        soundVisualizerView.startVisualizing(false)
         state = State.ON_RECORDING
     }
 
     private fun stopRecording() {
-        recorder?.run{
+        recorder?.run {
             stop()
             release() // 메모리 해제
         }
         recorder = null
+        soundVisualizerView.stopVisualizing()
         state = State.AFTER_RECORDING
     }
 
@@ -133,12 +141,14 @@ class MainActivity : AppCompatActivity() {
             prepare() // 스트리밍 혹은 오래걸리면 asyncprepare 쓰기. prepare 쓰면 앱이 잠깐 멈출 수 있음.
         }
         player?.start()
+        soundVisualizerView.startVisualizing(true)
         state = State.ON_PLAYING
     }
 
     private fun stopPlaying() {
         player?.release()
         player = null
+        soundVisualizerView.stopVisualizing()
         state = State.AFTER_RECORDING
     }
 
