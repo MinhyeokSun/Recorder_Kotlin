@@ -11,6 +11,10 @@ class RecordButton (
 ): AppCompatImageButton(context, attrs) {
 // AppCompat은 기존 클래스를 랩핑해서 이전버전에서도 새로출시한 기능 중 대부분의 기능을 정상적으로 작동하게 해주는 라이브러리
 
+    init {
+        setBackgroundResource(R.drawable.shape_oval_button)
+    }
+
     fun updateIconWithState(state: State) {
         when(state) {
             State.BEFORE_RECORDING -> {

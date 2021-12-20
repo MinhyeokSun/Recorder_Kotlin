@@ -89,6 +89,8 @@ class MainActivity : AppCompatActivity() {
         }
         resetButton.setOnClickListener {
             stopPlaying()
+            soundVisualizerView.clearVisualization()
+            recordTimeTextView.clearCountTime()
             state = State.BEFORE_RECORDING
         }
 
@@ -146,6 +148,10 @@ class MainActivity : AppCompatActivity() {
         player = MediaPlayer().apply {
             setDataSource(recordingFilePath)
             prepare() // 스트리밍 혹은 오래걸리면 asyncprepare 쓰기. prepare 쓰면 앱이 잠깐 멈출 수 있음.
+        }
+        player?.setOnCompletionListener {
+            stopPlaying()
+            state = State.AFTER_RECORDING
         }
         player?.start()
         soundVisualizerView.startVisualizing(true)
