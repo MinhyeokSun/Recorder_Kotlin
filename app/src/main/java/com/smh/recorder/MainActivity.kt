@@ -33,6 +33,11 @@ class MainActivity : AppCompatActivity() {
         "${externalCacheDir?.absolutePath}/recording.3gp"
     }
 
+    private val recordTimeTextView: CountUpTextView by lazy {
+        findViewById(R.id.recordTimeTextView)
+    }
+
+
     private var recorder: MediaRecorder? = null
     private var player: MediaPlayer? = null
     private var state = State.BEFORE_RECORDING
@@ -122,6 +127,7 @@ class MainActivity : AppCompatActivity() {
         }
         recorder?.start()
         soundVisualizerView.startVisualizing(false)
+        recordTimeTextView.startCountUp()
         state = State.ON_RECORDING
     }
 
@@ -132,6 +138,7 @@ class MainActivity : AppCompatActivity() {
         }
         recorder = null
         soundVisualizerView.stopVisualizing()
+        recordTimeTextView.stopCountUp()
         state = State.AFTER_RECORDING
     }
 
@@ -142,6 +149,7 @@ class MainActivity : AppCompatActivity() {
         }
         player?.start()
         soundVisualizerView.startVisualizing(true)
+        recordTimeTextView.startCountUp()
         state = State.ON_PLAYING
     }
 
@@ -149,6 +157,7 @@ class MainActivity : AppCompatActivity() {
         player?.release()
         player = null
         soundVisualizerView.stopVisualizing()
+        recordTimeTextView.stopCountUp()
         state = State.AFTER_RECORDING
     }
 
